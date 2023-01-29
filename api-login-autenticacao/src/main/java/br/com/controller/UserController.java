@@ -1,5 +1,8 @@
 package br.com.controller;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.com.dto.UserLogindto;
 import br.com.model.User;
+import br.com.repository.JwtManager;
 import br.com.service.UserService;
 
 @RestController
@@ -26,6 +30,9 @@ public class UserController {
 	@Autowired
 	private AuthenticationManager authManager;
 	
+	@Autowired
+	private JwtManager jwtManager;
+	
 	@PostMapping
 	public ResponseEntity<User> save(@RequestBody User user) {
 		User createdUser = userService.save(user);
@@ -34,14 +41,25 @@ public class UserController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<User> login(@RequestBody UserLogindto user) {
+	public ResponseEntity<String> login(@RequestBody UserLogindto user) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 		
 		Authentication auth = authManager.authenticate(token);
 		
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		
-		return ResponseEntity.ok(null);
+		org.springframework.security.core.userdetails.User userSpring = 
+				(org.springframework.security.core.userdetails.User) auth.getPrincipal();
+		
+		String email = userSpring.getUsername();
+		List<String> roles = userSpring.getAuthorities()
+				.stream()
+				.map(authority -> authority.getAuthority())
+				.collect(Collectors.toList());
+		
+		String jwt = jwtManager.createdToken(email, roles);
+		
+		return ResponseEntity.ok(jwt);
 	}
 	
 }
