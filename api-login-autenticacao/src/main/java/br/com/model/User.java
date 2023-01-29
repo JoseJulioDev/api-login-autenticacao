@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -12,6 +14,7 @@ import javax.persistence.SequenceGenerator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import br.com.model.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -40,4 +43,9 @@ public class User implements Serializable {
     @Setter(onMethod = @__({@JsonProperty}))
     @Column(length = 100, nullable = false)
     private String password;
+    
+
+    @Column(length = 20, nullable = false, updatable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role;
 }
