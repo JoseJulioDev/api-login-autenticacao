@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import br.com.service.util.HashUtil;
 
 @Component
-public class CustomPasswordEnconder implements PasswordEncoder {
+public class CustomPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
