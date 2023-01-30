@@ -6,13 +6,14 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import br.com.constant.SecurityConstants;
+import br.com.dto.UserLoginResponsedto;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 
 @Component
 public class JwtManager {
 
-	public String createdToken(String email, List<String> roles) {
+	public UserLoginResponsedto createdToken(String email, List<String> roles) {
 		Calendar calendar = Calendar.getInstance();
 		calendar.add(Calendar.MINUTE, SecurityConstants.JWT_EXP_MINUTOS);
 		
@@ -23,6 +24,8 @@ public class JwtManager {
 				.signWith(SignatureAlgorithm.HS512, SecurityConstants.API_KEY.getBytes())
 			    .compact();
 		
-		return jwt;
+		Long expireIn = calendar.getTimeInMillis(); 
+		
+		return new UserLoginResponsedto(jwt, expireIn, SecurityConstants.JWT_PROVIDER);
 	}
 }

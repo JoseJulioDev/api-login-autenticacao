@@ -10,12 +10,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.dto.UserLoginResponsedto;
 import br.com.dto.UserLogindto;
 import br.com.model.User;
 import br.com.repository.JwtManager;
@@ -42,7 +42,7 @@ public class UserController {
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody UserLogindto user) {
+	public ResponseEntity<UserLoginResponsedto> login(@RequestBody UserLogindto user) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 		Authentication auth = authManager.authenticate(token);
 		
@@ -56,20 +56,8 @@ public class UserController {
 					.stream()
 					.map(authority -> authority.getAuthority())
 					.collect(Collectors.toList());
-			
+		
 		return ResponseEntity.ok(jwtManager.createdToken(email, roles));
 	}
 	
-	@PostMapping("/logout")
-	public ResponseEntity<String> logout() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		
-		if(auth != null) {
-			 SecurityContextHolder.clearContext();
-		}
-		
-		return ResponseEntity.ok("ok");
-	}
-	
-
 }
