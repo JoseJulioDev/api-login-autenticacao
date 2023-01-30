@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,8 +56,20 @@ public class UserController {
 					.stream()
 					.map(authority -> authority.getAuthority())
 					.collect(Collectors.toList());
-				
+			
 		return ResponseEntity.ok(jwtManager.createdToken(email, roles));
 	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<String> logout() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		
+		if(auth != null) {
+			 SecurityContextHolder.clearContext();
+		}
+		
+		return ResponseEntity.ok("ok");
+	}
+	
 
 }
