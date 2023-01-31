@@ -3,7 +3,10 @@ package br.com.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,10 +20,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.com.constant.SecurityConstants;
 import br.com.dto.UserLoginResponsedto;
 import br.com.dto.UserLogindto;
+import br.com.model.BlackList;
 import br.com.model.User;
 import br.com.repository.JwtManager;
+import br.com.service.BlackListService;
 import br.com.service.UserService;
 
 @RestController
@@ -29,6 +35,9 @@ public class UserController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+	private BlackListService blackListService;
 
 	@Autowired
 	private AuthenticationManager authManager;
@@ -65,7 +74,24 @@ public class UserController {
 					.map(authority -> authority.getAuthority())
 					.collect(Collectors.toList());
 		
-		return ResponseEntity.ok(jwtManager.createdToken(email, roles));
+		UserLoginResponsedto userLoginResponsedto = jwtManager.createdToken(email, roles);
+		
+		BlackList tokenBlackList = blackListService.getByJwt(userLoginResponsedto.getToken());
+		if (tokenBlackList != null) {
+			blackListService.delete(tokenBlackList);
+		}
+		
+		return ResponseEntity.ok(userLoginResponsedto);
+	}
+	
+	@GetMapping("/logout")
+	public ResponseEntity<String> logout(HttpServletRequest request) {
+		String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+		token = token.replace(SecurityConstants.JWT_PROVIDER, "");
+		
+		blackListService.save(token);
+		
+		return ResponseEntity.ok(String.format("logout sucesso token %s adicionado a black list ",token));
 	}
 	
 }

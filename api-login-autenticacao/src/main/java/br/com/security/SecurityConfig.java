@@ -13,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import br.com.service.BlackListService;
 import br.com.service.UserService;
 
 @Configuration
@@ -21,6 +22,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired BlackListService blackListService;
 	
 	@Autowired
 	private CustomPasswordEncoder passwordEncoder;
@@ -39,9 +42,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 		.authorizeRequests()
-		.anyRequest().authenticated();
+		.anyRequest().authenticated()
+		.and()
+		.logout();
 		
-		http.addFilterBefore(new AuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+		http.addFilterBefore(new AuthorizationFilter(blackListService), UsernamePasswordAuthenticationFilter.class);
 	}
 
 	@Bean(name = BeanIds.AUTHENTICATION_MANAGER)

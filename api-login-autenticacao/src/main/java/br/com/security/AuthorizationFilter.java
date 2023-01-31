@@ -5,12 +5,14 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,10 +27,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.com.constant.SecurityConstants;
 import br.com.controller.exception.ApiError;
+import br.com.model.BlackList;
 import br.com.repository.JwtManager;
+import br.com.service.BlackListService;
 import io.jsonwebtoken.Claims;
 
 public class AuthorizationFilter extends OncePerRequestFilter{
+	
+	@Autowired
+	private BlackListService blackListService;
+	
+	public AuthorizationFilter(BlackListService blackListService) {
+		this.blackListService = blackListService;
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -52,6 +63,22 @@ public class AuthorizationFilter extends OncePerRequestFilter{
 		}
 		
 		jwt = jwt.replace(SecurityConstants.JWT_PROVIDER, "");
+		
+		BlackList tokenBlackList = blackListService.getByJwt(jwt);
+		if (tokenBlackList != null) {
+			ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.value(), SecurityConstants.JWT_BLOCKED_MSG, new Date());
+			PrintWriter writer =response.getWriter();
+			
+			ObjectMapper mapper = new ObjectMapper();
+			String apiErrorString = mapper.writeValueAsString(apiError);
+			
+			writer.write(apiErrorString);
+			
+			response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+			response.setStatus(HttpStatus.UNAUTHORIZED.value());
+			
+			return;
+		}
 		
 		try {
 			Claims claims = new JwtManager().parseToken(jwt);
