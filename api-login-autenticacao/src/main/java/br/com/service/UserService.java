@@ -31,6 +31,12 @@ public class UserService implements UserDetailsService {
 		User createdUser = userRepository.save(user);
 		return createdUser;
 	}
+	
+	public User getById(Long id) {
+		Optional<User> result = userRepository.findById(id);
+		
+		return result.orElseThrow(()-> new NotFoundException("Não foi encontrado nenhum usuário com id = " + id));
+	}
 
 	public User login(String email, String password) {
 		String hash = HashUtil.getSecureHash(password);
