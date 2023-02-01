@@ -35,16 +35,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		web.ignoring().antMatchers(HttpMethod.POST, "/users/login");
+		web.ignoring()
+		.antMatchers(HttpMethod.POST, "/users/login")
+		.antMatchers(HttpMethod.OPTIONS, "/users/login");
 	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.csrf().disable()
 		.authorizeRequests()
-		.anyRequest().authenticated()
-		.and()
-		.logout();
+		.anyRequest().authenticated();
 		
 		http.addFilterBefore(new AuthorizationFilter(blackListService), UsernamePasswordAuthenticationFilter.class);
 	}
