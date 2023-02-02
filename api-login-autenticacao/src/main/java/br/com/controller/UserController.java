@@ -14,6 +14,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -86,14 +87,15 @@ public class UserController {
 		return ResponseEntity.ok(userLoginResponsedto);
 	}
 	
-	@GetMapping("/logout")
+	@DeleteMapping("/logout")
+	@CrossOrigin("*")
 	public ResponseEntity<String> logout(HttpServletRequest request) {
 		String token = request.getHeader(HttpHeaders.AUTHORIZATION);
 		token = token.replace(SecurityConstants.JWT_PROVIDER, "");
 		
 		blackListService.save(token);
 		
-		return ResponseEntity.ok(String.format("logout sucesso token %s adicionado a black list ",token));
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 	
 }
