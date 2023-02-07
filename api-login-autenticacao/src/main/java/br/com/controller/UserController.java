@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.constant.SecurityConstants;
 import br.com.dto.UserLoginResponsedto;
 import br.com.dto.UserLogindto;
+import br.com.dto.UserSavedto;
 import br.com.model.BlackList;
 import br.com.model.User;
 import br.com.repository.JwtManager;
@@ -49,8 +50,10 @@ public class UserController {
 	private JwtManager jwtManager;
 
 	@PostMapping
-	public ResponseEntity<User> save(@RequestBody User user) {
-		User createdUser = userService.save(user);
+	public ResponseEntity<User> save(@RequestBody @Valid UserSavedto userdto) {
+		User userToSave = userdto.transformToUser();
+		
+		User createdUser = userService.save(userToSave);
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
 	}
