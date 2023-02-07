@@ -1,3 +1,3 @@
 # api-login-autenticacao
 
-uma API com sistema de login e autenticação utilizando Spring boot, JWT, JPA e PostgreSQL
+uma API com sistema de login e autenticação utilizando Spring boot, Spring security, JWT, JPA para persistir dados no PostgreSQL
