@@ -38,7 +38,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		web.ignoring()
 		.antMatchers(HttpMethod.POST, "/users/login")
 		.antMatchers(HttpMethod.OPTIONS, "/users/**");
-		//.antMatchers(HttpMethod.OPTIONS, "/users/logout");
 	}
 
 	@Override
