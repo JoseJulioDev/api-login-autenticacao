@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -62,7 +63,7 @@ public class UserController {
 
 	@PostMapping("/login")
 	@CrossOrigin("*")
-	public ResponseEntity<UserLoginResponsedto> login(@RequestBody UserLogindto user) {
+	public ResponseEntity<UserLoginResponsedto> login(@RequestBody @Valid UserLogindto user) {
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 		Authentication auth = authManager.authenticate(token);
 		
