@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.constant.SecurityConstants;
@@ -29,8 +30,11 @@ import br.com.dto.UserLoginResponsedto;
 import br.com.dto.UserLogindto;
 import br.com.dto.UserSavedto;
 import br.com.model.BlackList;
+import br.com.model.PageModel;
+import br.com.model.PageRequestModel;
 import br.com.model.User;
 import br.com.repository.JwtManager;
+import br.com.repository.UserRepository;
 import br.com.service.BlackListService;
 import br.com.service.UserService;
 
@@ -65,7 +69,19 @@ public class UserController {
 		User user = userService.getById(id);
 		return ResponseEntity.ok(user);
 	}
-
+	
+	@GetMapping
+	public ResponseEntity<PageModel<User>> listAll(
+			@RequestParam(value = "page") int page,
+			@RequestParam(value = "size") int size ) {
+		
+		PageRequestModel pr = new PageRequestModel(page, size);
+		
+		PageModel<User> pm = userService.listAllOnLazyMode(pr);
+		
+		return ResponseEntity.ok(pm);
+	}
+	
 	@PostMapping("/login")
 	@CrossOrigin("*")
 	public ResponseEntity<UserLoginResponsedto> login(@RequestBody @Valid UserLogindto user) {
